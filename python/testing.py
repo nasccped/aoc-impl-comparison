@@ -14,7 +14,7 @@ def run_test(func, mod_name: str = "undefined"):
     If not specified, \"undefined\" will be set.
     """
     print(
-        f"Running {func.__name__} ({mod_name})",
+        f"Running {mod_name}::{func.__name__}",
         end=" "
     )
     buffer = io.StringIO()
