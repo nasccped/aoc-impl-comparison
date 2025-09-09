@@ -1,9 +1,10 @@
 import sys
 import day_01
 import day_02
+import day_03
 
 # loading input as variables
-for i in range(1, 3):
+for i in range(1, 4):
     with open(f"inputs/day-0{i}.txt", "r") as f:
         # you can access it later by using the variable literal:
         # i01 => input for day 1
@@ -22,6 +23,7 @@ def main():
 def tests():
     day_01.tests()
     day_02.tests()
+    day_03.tests()
 
 if __name__ == "__main__":
     if (argc := len(sys.argv)) > 2:
