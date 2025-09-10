@@ -31,7 +31,7 @@ cbuild: $(CSOURCES)
 	@if [ ! -d $(TEMPDIR) ]; then \
 		mkdir $(TEMPDIR); \
 	fi;
-	@gcc $(CFLAGS) $^ -d $(OUTDIR)/$(CMAIN)
+	@gcc $(CFLAGS) $^ -o $(OUTDIR)/$(CMAIN)
 
 crun: $(OUTDIR)/$(CMAIN)
 	@$<
