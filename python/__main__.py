@@ -5,7 +5,7 @@ import day_03
 
 # loading input as variables
 for i in range(1, 4):
-    with open(f"inputs/day-0{i}.txt", "r") as f:
+    with open(f"inputs/day-0{i}.py.txt", "r") as f:
         # you can access it later by using the variable literal:
         # i01 => input for day 1
         # i02 => input for day 2
