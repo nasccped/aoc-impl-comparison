@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
         printf("Non valid arg: %s\n", argv[1]);
         return 1;
     }
-    printf("Result for day 1 input: %lld", day_01_part_01(i01));
+    printf("Result for day 1 input: %lld\n", day_01_part_01(i01));
     return 0;
 }
 
