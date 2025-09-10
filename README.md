@@ -8,6 +8,15 @@ distinct programming languages.
 The `aoc-2020` was chosen for this challenge. I won't solve the
 entire edition, but just the initial days, instead...
 
+<div align="center">
+
+![fun image](./image.jpg)
+
+_illustrative image:_ how many lines cost for day 1 solve (the C is
+hiding a lot of impl code (~301 lines from `aoc_utils`))
+
+</div>
+
 As programming languages, `Python` and `C` was chosen since they're
 the most _level-gap_[^level-gap] languages I know.
 
