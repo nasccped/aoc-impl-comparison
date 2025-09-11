@@ -2,6 +2,24 @@
 #include <string.h>
 #include <stdio.h>
 
+/* Local function tests if a LinkedList pointer is valid for the given type. */
+int _linked_list_is_valid(LinkedList *ll, GenericVariant type) {
+    return !(!ll || ll -> type != type);
+}
+
+/* Pushes a new Node to a LinkedList. */
+void _linked_list_add_item(LinkedList *ll, LinkedListNode *new_node) {
+    if (!ll || !new_node) {
+        perror("Linked list head/incoming node is NULL\n");
+        exit(1);
+    }
+    LinkedListNode *aux;
+    for (aux = ll -> head; aux -> next; aux = aux -> next);
+    aux -> next = new_node;
+}
+
+int char_is_num(char c) { return c >= '0' && c <= '9'; }
+
 /* Creates a new LinkedList from a given type variant. */
 LinkedList *linked_list_new(GenericVariant type) {
     LinkedList *p = (LinkedList *) malloc(sizeof(LinkedList));
@@ -15,25 +33,30 @@ LinkedList *linked_list_new(GenericVariant type) {
  * It can fail if the LinkedList pointer is null or if it's
  * a non INT variant LinkedList. */
 LinkedListNode *linked_list_push_int(LinkedList *ll, int value) {
-    if (!ll) {
-        perror("Linked list is NULL!\n");
-        exit(1);
-    }
-    if (ll -> type != INT) {
-        perror("Pushing an int to a non int linked list");
+    if (!_linked_list_is_valid(ll, INT)) {
+        perror("Invalid linked list (is null or wrong type pushing)\n");
         exit(1);
     }
     LinkedListNode *p = (LinkedListNode *) malloc(sizeof(LinkedListNode));
     if (!p) return NULL;
     p -> value.i = value;
     p -> next = NULL;
-    if (!(ll -> head)) {
-        ll -> head = p;
-        return p;
+    if (!(ll -> head)) ll -> head = p;
+    else _linked_list_add_item(ll, p);
+    return p;
+}
+
+LinkedListNode *linked_list_push_str(LinkedList *ll, char *value) {
+    if (!ll) {
+        perror("Linked list is NULL\n");
+        exit(1);
     }
-    LinkedListNode *temp;
-    for (temp = ll -> head; temp -> next; temp = temp -> next);
-    temp -> next = p;
+    LinkedListNode *p = (LinkedListNode *) malloc(sizeof(LinkedListNode));
+    if (!p) return NULL;
+    p -> value.s = value;
+    p -> next = NULL;
+    if (!(ll -> head)) ll -> head = p;
+    else _linked_list_add_item(ll, p);
     return p;
 }
 

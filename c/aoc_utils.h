@@ -13,6 +13,8 @@ typedef enum _GenericVariantEnum {
     INT, DOUBLE, CHAR, STRING
 } GenericVariant;
 
+int char_is_num(char c);
+
 /* Linked List content */
 typedef struct _LinkedListNodeStruct {
     union {
@@ -34,6 +36,8 @@ typedef struct _LinkedListStruct {
 LinkedList *linked_list_new(GenericVariant type);
 // Push int element
 LinkedListNode *linked_list_push_int(LinkedList *ll, int value);
+// Push char pointer element
+LinkedListNode *linked_list_push_str(LinkedList *ll, char *value);
 // Dealocate Linked List mem
 void linked_list_destroy(LinkedList *ll);
 
