@@ -4,8 +4,12 @@
 #include "aoc_testing.h"
 #include "aoc_common.h"
 
-static char i01[] =
+static char
+i01[] =
 #include "../inputs/day-01.c.txt"
+,
+i02[] =
+#include "../inputs/day-02.c.txt"
 ;
 
 int tests();
@@ -23,12 +27,13 @@ int main(int argc, char *argv[]) {
         printf("Non valid arg: %s\n", argv[1]);
         return 1;
     }
-    printf("Result for day 1 input: %lld\n", day_01_part_01(i01));
+    printf("Result for day 2 input (part 1): %lld\n", day_02_part_01(i02));
     return 0;
 }
 
 int tests() {
     int result = 1;
     result &= day_01_tests();
+    result &= day_02_tests();
     return !result;
 }
