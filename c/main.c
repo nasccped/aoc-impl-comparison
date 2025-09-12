@@ -10,6 +10,9 @@ i01[] =
 ,
 i02[] =
 #include "../inputs/day-02.c.txt"
+,
+i03[] =
+#include "../inputs/day-03.c.txt"
 ;
 
 int tests();
@@ -35,5 +38,6 @@ int tests() {
     int result = 1;
     result &= day_01_tests();
     result &= day_02_tests();
+    result &= day_03_tests();
     return !result;
 }
