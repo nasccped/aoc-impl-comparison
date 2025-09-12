@@ -14,19 +14,34 @@ static const char SAMPLE_INPUT[] =
 "1456\n"
 ;
 
-// utility used to fullfil a LinkedList from the input of day 1 (impl on the
-// end of the file).
-void fullfil_ll_with_input(LinkedList *ll, char *input);
+// utility used to fullfil a LinkedList from the input of day 1
+LinkedList *build_day_01_linked_list(char *input) {
+    LinkedList *ll = linked_list_new(INT);
+    if (!ll) {
+        perror("Linked list alloc failed\n");
+        exit(1);
+    }
+    int curnum = 0;
+    for (usize i = 0; i < strlen(input); i++) {
+        if (input[i] == '\n') {
+            linked_list_push_int(ll, curnum);
+            curnum = 0;
+            continue;
+        }
+        curnum *= 10;
+        curnum += input[i] - '0';
+    }
+    return ll;
+}
 
 // part 1 of the day 1 challenge
 usize day_01_part_01(char *input) {
-    LinkedList *vals = linked_list_new(INT);
+    LinkedList *vals = build_day_01_linked_list(input);
     BTreeSet *set = b_tree_set_new(INT);
-    if (!vals || !set) {
-        perror("LinkedList/BTreeSet alloc failed!\n");
+    if (!set) {
+        perror("BTreeSet alloc failed!\n");
         exit(1);
     }
-    fullfil_ll_with_input(vals, input);
     int v, diff;
     for (LinkedListNode *temp = vals -> head; temp; temp = temp -> next) {
         v = temp -> value.i;
@@ -45,13 +60,12 @@ usize day_01_part_01(char *input) {
 
 // part 2 of the day 1 challenge
 usize day_01_part_02(char *input) {
-    LinkedList *vals = linked_list_new(INT);
+    LinkedList *vals = build_day_01_linked_list(input);
     BTreeSet *set = b_tree_set_new(INT);
-    if (!vals || !set) {
-        perror("LinkedList/BTreeSet alloc failed!\n");
+    if (!set) {
+        perror("BTreeSet alloc failed!\n");
         exit(1);
     }
-    fullfil_ll_with_input(vals, input);
     LinkedList *aux;
     int a_val, b_val, v;
     for (LinkedListNode *n = vals -> head; n; n = n -> next) {
@@ -77,18 +91,7 @@ usize day_01_part_02(char *input) {
     return 0;
 }
 
-void fullfil_ll_with_input(LinkedList *ll, char *input) {
-    int curnum = 0;
-    for (usize i = 0; i < strlen(input); i++) {
-        if (input[i] == '\n') {
-            linked_list_push_int(ll, curnum);
-            curnum = 0;
-            continue;
-        }
-        curnum *= 10;
-        curnum += input[i] - '0';
-    }
-}
+
 
 int day_01_test_01() {
     return assert_eq(day_01_part_01((char *) SAMPLE_INPUT), 514579, NULL);
