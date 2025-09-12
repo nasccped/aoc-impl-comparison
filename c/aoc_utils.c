@@ -2,6 +2,41 @@
 #include <string.h>
 #include <stdio.h>
 
+/* populate a Linked List with BTreeSet data (recursive). */
+void _fullfil_ll_from_b_tree_set(LinkedList *ll, BTreeSetNode *node) {
+    if (!node) return;
+    if (!ll) {
+        perror("LinkedList is NULL\n");
+        exit(1);
+    }
+    // push left, current node, then, right to preserve Set ordering.
+    _fullfil_ll_from_b_tree_set(ll, node -> left);
+    switch (ll -> type) {
+        case INT:
+            linked_list_push_int(ll, node -> value.i);
+            break;
+        default:
+            perror("Non implemented code (push: double/char/string func is missing)\n");
+            exit(1);
+            break;
+    }
+    _fullfil_ll_from_b_tree_set(ll, node -> right);
+}
+
+/* Local BTreeSet memfree (using recursion) */
+void _b_tree_set_node_destroy_recursive(BTreeSetNode *node, GenericVariant type) {
+    if (!node) return;
+    _b_tree_set_node_destroy_recursive(node -> left, type);
+    _b_tree_set_node_destroy_recursive(node -> right, type);
+    switch (type) {
+        case STRING:
+            free(node -> value.s);
+            break;
+        default: break;
+    }
+    free(node);
+}
+
 /* Local function tests if a LinkedList pointer is valid for the given type. */
 int _linked_list_is_valid(LinkedList *ll, GenericVariant type) {
     return !(!ll || ll -> type != type);
@@ -18,67 +53,6 @@ void _linked_list_add_item(LinkedList *ll, LinkedListNode *new_node) {
     aux -> next = new_node;
 }
 
-int char_is_num(char c) { return c >= '0' && c <= '9'; }
-
-/* Creates a new LinkedList from a given type variant. */
-LinkedList *linked_list_new(GenericVariant type) {
-    LinkedList *p = (LinkedList *) malloc(sizeof(LinkedList));
-    if (!p) return NULL;
-    p -> type = type;
-    p -> head = NULL;
-    return p;
-}
-
-/* Pushes a new int node in an existing LinkedList.
- * It can fail if the LinkedList pointer is null or if it's
- * a non INT variant LinkedList. */
-LinkedListNode *linked_list_push_int(LinkedList *ll, int value) {
-    if (!_linked_list_is_valid(ll, INT)) {
-        perror("Invalid linked list (is null or wrong type pushing)\n");
-        exit(1);
-    }
-    LinkedListNode *p = (LinkedListNode *) malloc(sizeof(LinkedListNode));
-    if (!p) return NULL;
-    p -> value.i = value;
-    p -> next = NULL;
-    if (!(ll -> head)) ll -> head = p;
-    else _linked_list_add_item(ll, p);
-    return p;
-}
-
-LinkedListNode *linked_list_push_str(LinkedList *ll, char *value) {
-    if (!ll) {
-        perror("Linked list is NULL\n");
-        exit(1);
-    }
-    LinkedListNode *p = (LinkedListNode *) malloc(sizeof(LinkedListNode));
-    if (!p) return NULL;
-    p -> value.s = value;
-    p -> next = NULL;
-    if (!(ll -> head)) ll -> head = p;
-    else _linked_list_add_item(ll, p);
-    return p;
-}
-
-/* Deallocate a LinkedList pointer and it's nodes. */
-void linked_list_destroy(LinkedList *ll) {
-    if (!ll) return;
-    LinkedListNode *temp = ll -> head, *aux;
-    while (temp) {
-        aux = temp -> next;
-        switch (ll -> type) {
-            case STRING:
-                free(temp -> value.s);
-                break;
-            default:
-                break;
-        }
-        free(temp);
-        temp = aux;
-    }
-    free(ll);
-}
-
 /* Creates a new BTreeSet from a given type. */
 BTreeSet *b_tree_set_new(GenericVariant type) {
     BTreeSet *p = (BTreeSet *) malloc(sizeof(BTreeSet));
@@ -86,6 +60,62 @@ BTreeSet *b_tree_set_new(GenericVariant type) {
     p -> type = type;
     p -> root = NULL;
     return p;
+}
+
+BTreeSet *b_tree_set_from_linked_list(LinkedList *ll) {
+    if (!ll) {
+        perror("Linked list is null\n");
+        exit(1);
+    }
+    BTreeSet *p = (BTreeSet *) malloc(sizeof(BTreeSet));
+    if (!p) return NULL;
+    p -> type = ll -> type;
+    if (!(ll -> head)) return p;
+    LinkedListNode *aux = ll -> head;
+    do {
+        switch (ll -> type) {
+            case INT:
+                b_tree_set_push_int(p, aux -> value.i);
+                break;
+            case DOUBLE:
+                printf("BTreeSet non implemented code (%s: %d)\n", __FILE__, __LINE__);
+                exit(1);
+                break;
+            case CHAR:
+                printf("BTreeSet non implemented code (%s: %d)\n", __FILE__, __LINE__);
+                exit(1);
+                break;
+            case STRING:
+                printf("BTreeSet non implemented code (%s: %d)\n", __FILE__, __LINE__);
+                exit(1);
+                break;
+            default:
+                printf("Switch case throwns in an unexpected variant (%s: %d)\n", __FILE__, __LINE__);
+                exit(1);
+                break;
+        }
+        aux = aux -> next;
+    } while (aux);
+    return p;
+}
+
+/* Checks if the given BTreeSet pointer contains the given int element. */
+int b_tree_set_contains_int(BTreeSet *bts, int value) {
+    if (!bts) {
+        perror("BTreeSet is NULL\n");
+        exit(1);
+    }
+    if (bts -> type != INT) {
+        perror("Searching for int in a non int BTreeSet\n");
+        exit(1);
+    }
+    BTreeSetNode *node = bts -> root;
+    while (node) {
+        if (node -> value.i < value) node = node -> right;
+        else if (node -> value.i > value) node = node -> left;
+        else return 1;
+    }
+    return 0;
 }
 
 /* Pushes a new int element to an existing BTreeSet.
@@ -129,25 +159,6 @@ void b_tree_set_push_int(BTreeSet *bts, int value) {
     }
 }
 
-/* Checks if the given BTreeSet pointer contains the given int element. */
-int b_tree_set_contains_int(BTreeSet *bts, int value) {
-    if (!bts) {
-        perror("BTreeSet is NULL\n");
-        exit(1);
-    }
-    if (bts -> type != INT) {
-        perror("Searching for int in a non int BTreeSet\n");
-        exit(1);
-    }
-    BTreeSetNode *node = bts -> root;
-    while (node) {
-        if (node -> value.i < value) node = node -> right;
-        else if (node -> value.i > value) node = node -> left;
-        else return 1;
-    }
-    return 0;
-}
-
 /* Compare two different BTreeSet nodes inner value by a given type.
  * Can fail if any of the pointers is null.
  *
@@ -177,22 +188,31 @@ int b_tree_set_node_compare(BTreeSetNode *left,
  * clear the tree nodes (with recursion). */
 void b_tree_set_destroy(BTreeSet *bts) {
     if (!bts) return;
-    b_tree_set_destroy_by_recursion(bts -> root, bts -> type);
+    _b_tree_set_node_destroy_recursive(bts -> root, bts -> type);
     free(bts);
 }
 
-/* Deallocate mem of all BTreeSet nodes recursively. */
-void b_tree_set_destroy_by_recursion(BTreeSetNode *node, GenericVariant type) {
-    if (!node) return;
-    b_tree_set_destroy_by_recursion(node -> left, type);
-    b_tree_set_destroy_by_recursion(node -> right, type);
-    switch (type) {
-        case STRING:
-            free(node -> value.s);
-            break;
-        default:
+int char_is_num(char c) { return c >= '0' && c <= '9'; }
+
+
+
+/* Deallocate a LinkedList pointer and it's nodes. */
+void linked_list_destroy(LinkedList *ll) {
+    if (!ll) return;
+    LinkedListNode *temp = ll -> head, *aux;
+    while (temp) {
+        aux = temp -> next;
+        switch (ll -> type) {
+            case STRING:
+                free(temp -> value.s);
+                break;
+            default:
+                break;
+        }
+        free(temp);
+        temp = aux;
     }
-    free(node);
+    free(ll);
 }
 
 /* Create a new LinkedList from BTreeSet pointer.
@@ -207,36 +227,57 @@ LinkedList *linked_list_from_b_tree_set(BTreeSet *bts) {
         perror("BTreeSet is null\n");
         exit(1);
     }
-    LinkedList *p = linked_list_new(INT);
+    LinkedList *p = linked_list_new(bts -> type);
     if (!p) {
         perror("LinkedList alloc failed\n");
         exit(1);
     }
-    fullfil_ll_from_b_tree_set(p, bts -> root, bts -> type);
+    _fullfil_ll_from_b_tree_set(p, bts -> root);
     return p;
 }
 
-/* Function mentioned above. */
-void fullfil_ll_from_b_tree_set(LinkedList *ll, BTreeSetNode *node, GenericVariant type) {
-    if (!ll) {
-        perror("LinkedList is NULL\n");
-        exit(1);
-    }
-    if (!node) return;
-    if (ll -> type != type) {
-        perror("Non suitable type pushing\n");
-        exit(1);
-    }
-    // push left, current node, then, right to preserve Set ordering.
-    fullfil_ll_from_b_tree_set(ll, node -> left, type);
-    switch (type) {
-        case INT:
-            linked_list_push_int(ll, node -> value.i);
-            break;
-        default:
-            perror("Non implemented code (push: double/char/string func is missing)\n");
-            exit(1);
-            break;
-    }
-    fullfil_ll_from_b_tree_set(ll, node -> right, type);
+/* Creates a new LinkedList from a given type variant. */
+LinkedList *linked_list_new(GenericVariant type) {
+    LinkedList *p = (LinkedList *) malloc(sizeof(LinkedList));
+    if (!p) return NULL;
+    p -> type = type;
+    p -> head = NULL;
+    return p;
 }
+
+/* Pushes a new int node in an existing LinkedList.
+ * It can fail if the LinkedList pointer is null or if it's
+ * a non INT variant LinkedList. */
+LinkedListNode *linked_list_push_int(LinkedList *ll, int value) {
+    if (!_linked_list_is_valid(ll, INT)) {
+        perror("Invalid linked list (is null or wrong type pushing)\n");
+        exit(1);
+    }
+    LinkedListNode *p = (LinkedListNode *) malloc(sizeof(LinkedListNode));
+    if (!p) return NULL;
+    p -> value.i = value;
+    p -> next = NULL;
+    if (!(ll -> head)) ll -> head = p;
+    else _linked_list_add_item(ll, p);
+    return p;
+}
+/* Pushes a new String value to a linked list. */
+LinkedListNode *linked_list_push_str(LinkedList *ll, char *value) {
+    if (!ll) {
+        perror("Linked list is NULL\n");
+        exit(1);
+    }
+    LinkedListNode *p = (LinkedListNode *) malloc(sizeof(LinkedListNode));
+    if (!p) return NULL;
+    p -> value.s = value;
+    p -> next = NULL;
+    if (!(ll -> head)) ll -> head = p;
+    else _linked_list_add_item(ll, p);
+    return p;
+}
+
+
+
+
+
+
